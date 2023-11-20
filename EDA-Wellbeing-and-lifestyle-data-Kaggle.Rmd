@@ -1,0 +1,87 @@
+---
+title: "Untitled"
+output: word_document
+date: "2023-03-30"
+---
+```{r}
+library(glmnet)  
+library(caret)  
+library(dplyr)   
+library(car)
+library(nnet)
+library(GGally)
+library(lmtest)
+library(factoextra)
+library(tidyverse)
+library(leaps)
+library(nortest)
+library(lmtest)
+```
+```{r}
+#Membaca data csv
+data <- read.csv("Wellbeing_and_lifestyle_data_Kaggle - all.csv")
+head(data)
+```
+```{r}
+#Deskripsi statistik
+summary(data)
+```
+```{r}
+#matrik korelasi
+ggcorr(data, label = T )
+```
+```{r}
+#Analisis Komponen Utama (PCA)
+res.pca <- prcomp(data, scale = TRUE) #Dilakukan penskalaan 
+summary(res.pca)
+res.pca
+```
+```{r}
+#Visualize eigenvalues (scree plot). Show the percentage of variances explained by each principal component.
+fviz_eig(res.pca)
+```
+
+```{r}
+#Membaca data csv
+data2 <- read.csv("Wellbeing_and_lifestyle_data_Kaggle - 2.csv")
+head(data)
+```
+```{r}
+#matrik korelasi
+ggcorr(data2, label = T )
+```
+```{r}
+#Permodelan 
+Y=data$WORK_LIFE_BALANCE_SCORE
+FRUITS_VEGGIES=data$FRUITS_VEGGIES
+PLACES_VISITED=data$PLACES_VISITED
+CORE_CIRCLE=data$CORE_CIRCLE
+SUPPORTING_OTHERS=data$SUPPORTING_OTHERS
+SOCIAL_NETWORK=data$SOCIAL_NETWORK
+SLEEP_HOURS=data$SLEEP_HOURS
+PERSONAL_AWARDS=data$PERSONAL_AWARDS
+TIME_FOR_PASSION=data$TIME_FOR_PASSION
+AGE=data$AGE
+relation <- lm(Y~FRUITS_VEGGIES+PLACES_VISITED+CORE_CIRCLE+SUPPORTING_OTHERS+SOCIAL_NETWORK+SLEEP_HOURS+PERSONAL_AWARDS+TIME_FOR_PASSION+AGE)
+print(summary(relation))
+```
+```{r}
+relation <- lm(Y~0+FRUITS_VEGGIES+PLACES_VISITED+CORE_CIRCLE+SUPPORTING_OTHERS+SOCIAL_NETWORK+SLEEP_HOURS+PERSONAL_AWARDS+TIME_FOR_PASSION+AGE)
+print(summary(relation))
+```
+```{r}
+#Uji Kolmogorov – Smirnov
+lillie.test(residual)
+```
+```{r}
+#b. Keragaman Residual (Uji Identik)
+#Uji homoskedastisitas p-value > 5%
+bptest(relation,studentize=F) 
+#Residual mempunyai variansi yang konstan(homogen)
+```
+```{r}
+#c. Independensi Residual
+#Uji Autokorelasi (Durbin Watson) p-value > 5%
+dwtest(relation)
+#Tidak ada autokorelasi dari nilai residual 
+```
